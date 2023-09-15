@@ -1,7 +1,7 @@
 FROM oven/bun
 
 COPY . ./
-RUN bun build ./index.ts --outdir ./out 
+RUN bun build --target=bun ./index.ts --outfile ./service2.js
 
-ENTRYPOINT ["bun", "run", "./out/index.js"]
+ENTRYPOINT ["bun", "run", "./service2.js"]
 

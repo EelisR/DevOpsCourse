@@ -2,15 +2,15 @@
 using System.Text;
 using System.Text.Json;
 
-const string SERVICE_2_ADDR = "localhost";
-const string SERVICE_2_PORT = "8000";
-const string LOG_FILE = "../logs/service1.log";
+string SERVICE_2_ADDR = Environment.GetEnvironmentVariable("SERVICE_2_ADDRESS") ?? "localhost";
+string SERVICE_2_PORT = Environment.GetEnvironmentVariable("SERVICE_2_PORT") ?? "8000";
+string FILE_PATH = Environment.GetEnvironmentVariable("FILE_PATH") ?? "../logs/service1.log";
 const string STOP = "STOP";
 
-using var file = File.Create(LOG_FILE);
+using var file = File.Create(FILE_PATH);
 file.Dispose();
 
-using var writer = new StreamWriter(LOG_FILE, append: true);
+using var writer = new StreamWriter(FILE_PATH, append: true);
 using var client = new HttpClient();
 
 for (int i = 1; i < 21; i++)

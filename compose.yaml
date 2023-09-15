@@ -1,0 +1,22 @@
+services:
+
+  dotnet_service1:
+    build: service1
+    volumes:
+      - ./logs:/logs/
+    ports: 
+    - 4001
+    environment:
+      SERVICE_2_ADDRESS: bun_service2
+      SERVICE_2_PORT: 8000
+      FILE_PATH: /logs/service1.log
+
+  bun_service2:    
+    build: service2
+    volumes:
+      - ./logs:/logs/ 
+    ports:
+    - 8000
+    environment:
+      PORT: 8000
+      FILE_PATH: /logs/service2.log
