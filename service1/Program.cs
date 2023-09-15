@@ -13,10 +13,10 @@ file.Dispose();
 using var writer = new StreamWriter(LOG_FILE, append: true);
 using var client = new HttpClient();
 
-for (int i = 1; i < 3; i++)
+for (int i = 1; i < 21; i++)
 {
     Thread.Sleep(2000);
-    var message = $"{i} {DateTime.Now} {SERVICE_2_ADDR}:{SERVICE_2_PORT}";
+    var message = $"{i} {DateTime.Now.ToUniversalTime().ToString("o")} {SERVICE_2_ADDR}:{SERVICE_2_PORT}";
     writer.WriteLine(message);
 
     var json = JsonSerializer.Serialize(new ServerMessage { message = message });
