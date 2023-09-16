@@ -1,0 +1,11 @@
+Contents of docker container ls
+CONTAINER ID   IMAGE                          COMMAND                  CREATED         STATUS         PORTS                    NAMES
+4d1282763ad8   devopscourse-eelisr-service2   "bun run ./service2.…"   8 minutes ago   Up 9 seconds   0.0.0.0:8000->8000/tcp   devopscourse-eelisr-service2-1
+f00d81e24447   devopscourse-eelisr-service1   "dotnet service1.dll"    8 minutes ago   Up 9 seconds   0.0.0.0:4001->4001/tcp   devopscourse-eelisr-service1-1
+
+Contents of docker network ls
+NETWORK ID     NAME                          DRIVER    SCOPE
+5b3a790c61ed   bridge                        bridge    local
+071bc739a596   devopscourse_eelisr-network   bridge    local
+1bad752369ed   host                          host      local
+69b0266a0e14   none                          null      local
