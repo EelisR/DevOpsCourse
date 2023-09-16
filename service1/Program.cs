@@ -5,6 +5,8 @@ using System.Text.Json;
 string SERVICE_2_ADDR = Environment.GetEnvironmentVariable("SERVICE_2_ADDRESS") ?? "localhost";
 string SERVICE_2_PORT = Environment.GetEnvironmentVariable("SERVICE_2_PORT") ?? "8000";
 string FILE_PATH = Environment.GetEnvironmentVariable("FILE_PATH") ?? "../logs/service1.log";
+string OWN_PORT = Environment.GetEnvironmentVariable("OWN_PORT") ?? "4001";
+string OWN_IP = Environment.GetEnvironmentVariable("OWN_IP") ?? "localhost";
 const string STOP = "STOP";
 
 using var file = File.Create(FILE_PATH);
@@ -19,7 +21,7 @@ for (int i = 1; i < 21; i++)
     var message = $"{i} {DateTime.Now.ToUniversalTime().ToString("o")} {SERVICE_2_ADDR}:{SERVICE_2_PORT}";
     writer.WriteLine(message);
 
-    var json = JsonSerializer.Serialize(new ServerMessage { message = message });
+    var json = JsonSerializer.Serialize(new ServerMessage { message = message, origin = $"{OWN_IP}:{OWN_PORT}" });
     var jsonContent = new StringContent(json, Encoding.UTF8, new MediaTypeHeaderValue("application/json"));
 
     try

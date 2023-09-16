@@ -12,18 +12,20 @@ app.use(express.json())
 
 app.post('/', (req, res) => {
   const message = req.body.message
-  const host = req.headers.host
 
   if (message === 'STOP') {
     writer.end()
     res.end()
     server.close()
-  } else {
-    const formattedMessage = `${message} ${host} \n`
-    console.log(formattedMessage)
-    writer.write(formattedMessage)
-    res.end()
+    return
   }
+
+  const originatingHost = req.body.origin
+  const formattedMessage = `${message} ${originatingHost} \n`
+  console.log(formattedMessage)
+  writer.write(formattedMessage)
+  res.end()
+
 })
 
 const server = app.listen(PORT)
