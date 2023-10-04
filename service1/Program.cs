@@ -6,14 +6,9 @@ using System.Text.Json;
 
 string SERVICE_2_ADDR = Environment.GetEnvironmentVariable("SERVICE_2_ADDRESS") ?? "localhost";
 string SERVICE_2_PORT = Environment.GetEnvironmentVariable("SERVICE_2_PORT") ?? "8000";
-string FILE_PATH = Environment.GetEnvironmentVariable("FILE_PATH") ?? "../logs/service1.log";
 string OWN_PORT = Environment.GetEnvironmentVariable("OWN_PORT") ?? "4001";
 const string STOP = "STOP";
 
-using var file = File.Create(FILE_PATH);
-file.Dispose();
-
-using var writer = new StreamWriter(FILE_PATH, append: true);
 using var client = new HttpClient();
 
 var dns = Dns.GetHostEntry(Dns.GetHostName());
@@ -24,8 +19,7 @@ var ip = dns.AddressList.FirstOrDefault(x => x.AddressFamily == AddressFamily.In
 for (int i = 1; i < 21; i++)
 {
     Thread.Sleep(2000);
-    var message = $"{i} {DateTime.Now.ToUniversalTime().ToString("o")} {SERVICE_2_ADDR}:{SERVICE_2_PORT}";
-    writer.WriteLine(message);
+    var message = $"SND {i} {DateTime.Now.ToUniversalTime().ToString("o")} {SERVICE_2_ADDR}:{SERVICE_2_PORT}";
 
     var json = JsonSerializer.Serialize(new ServerMessage { message = message, origin = $"{ip}:{OWN_PORT}" });
     var jsonContent = new StringContent(json, Encoding.UTF8, new MediaTypeHeaderValue("application/json"));
@@ -37,15 +31,10 @@ for (int i = 1; i < 21; i++)
     catch (Exception e)
     {
         Console.WriteLine(e.Message);
-        writer.WriteLine(e.Message);
     }
 }
 
-writer.WriteLine(STOP);
 var stopJson = JsonSerializer.Serialize(new ServerMessage { message = STOP });
-var stopJsonContent = new StringContent(stopJson, Encoding.UTF8, new MediaTypeHeaderValue("application/json"));
-
-await client.PostAsync($"http://{SERVICE_2_ADDR}:{SERVICE_2_PORT}", stopJsonContent);
 
 class ServerMessage
 {
