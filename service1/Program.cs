@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Text;
@@ -7,7 +8,10 @@ using System.Text.Json;
 string SERVICE_2_ADDR = Environment.GetEnvironmentVariable("SERVICE_2_ADDRESS") ?? "localhost";
 string SERVICE_2_PORT = Environment.GetEnvironmentVariable("SERVICE_2_PORT") ?? "8000";
 string OWN_PORT = Environment.GetEnvironmentVariable("OWN_PORT") ?? "4001";
+string MQ_ADDRESS = Environment.GetEnvironmentVariable("MQ_ADDRESS") ?? "localhost";
 const string STOP = "STOP";
+
+Process.Start("./wait-for-it.sh", $"{MQ_ADDRESS}").WaitForExit();
 
 using var client = new HttpClient();
 
