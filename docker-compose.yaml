@@ -1,14 +1,19 @@
 services:
+  eelisr-mq:
+    image: rabbitmq:3
+    ports:
+      - 8080
+    networks:
+      eelisr-network:
+        ipv4_address: 10.0.1.2
+
   eelisr-service1:
     build: service1
-    volumes:
-      - ./logs:/logs/
     ports: 
-    - 4001:4001
+    - 4001
     environment:
-      SERVICE_2_ADDRESS: 10.0.1.2 
+      SERVICE_2_ADDRESS: 10.0.1.4 
       SERVICE_2_PORT: 8000
-      FILE_PATH: /logs/service1.log
       OWN_PORT: 4001
     networks:
       eelisr-network:
@@ -16,17 +21,21 @@ services:
 
   eelisr-service2:    
     build: service2
-    volumes:
-      - ./logs:/logs/ 
     ports:
-      - 8000:8000
+      - 8000
     environment:
       PORT: 8000
-      FILE_PATH: /logs/service2.log
     networks:
       eelisr-network:
-        ipv4_address: 10.0.1.2
+        ipv4_address: 10.0.1.4
 
+  eelisr-monitor:
+    build: monitor
+    ports:
+      - 8087:8087
+    networks:
+      eelisr-network:
+        ipv4_address: 10.0.1.5
 
 networks:
   eelisr-network:
