@@ -19,6 +19,9 @@ Process.Start("./wait-for-it.sh", $"{MQ_ADDRESS}:{MQ_PORT}").WaitForExit();
 
 var factory = new ConnectionFactory() { HostName = MQ_ADDRESS, Port = int.Parse(MQ_PORT) };
 
+using var connection = factory.CreateConnection();
+using var channel = connection.CreateModel();
+
 using var client = new HttpClient();
 
 var dns = Dns.GetHostEntry(Dns.GetHostName());
@@ -31,16 +34,20 @@ for (int i = 1; i < 21; i++)
     Thread.Sleep(2000);
     var message = $"SND {i} {DateTime.Now.ToUniversalTime().ToString("o")} {SERVICE_2_ADDR}:{SERVICE_2_PORT}";
 
+    channel.BasicPublish(exchange: "message", body: Encoding.UTF8.GetBytes(message), routingKey: "message");
+
     var json = JsonSerializer.Serialize(new ServerMessage { message = message, origin = $"{ip}:{OWN_PORT}" });
     var jsonContent = new StringContent(json, Encoding.UTF8, new MediaTypeHeaderValue("application/json"));
 
     try
     {
         var res = await client.PostAsync($"http://{SERVICE_2_ADDR}:{SERVICE_2_PORT}", jsonContent );
+        channel.BasicPublish(exchange: "log", body: await res.Content.ReadAsByteArrayAsync(), routingKey: "log");
     }
     catch (Exception e)
     {
         Console.WriteLine(e.Message);
+        channel.BasicPublish(exchange: "log", body: Encoding.UTF8.GetBytes(e.Message), routingKey: "log");
     }
 }
 
