@@ -20,19 +20,21 @@ const string LOG_QUEUE = "log";
 const string STOP = "SND STOP";
 
 
+// Wait for RabbitMQ to start
 Process.Start("./wait-for-it.sh", $"{MQ_ADDRESS}:{MQ_PORT}").WaitForExit();
 
+// Initialise the RabbitMQ connection and channels
 var factory = new ConnectionFactory() { HostName = MQ_ADDRESS, Port = int.Parse(MQ_PORT) };
-
 using var connection = factory.CreateConnection();
 using var channel = connection.CreateModel();
-
 channel.ExchangeDeclare("devops", ExchangeType.Topic, true);
 channel.QueueDeclare("message", durable: true, exclusive: false, autoDelete: true);
 channel.QueueDeclare("log", durable: true, exclusive: false, autoDelete: false);
 channel.QueueBind("message", "devops", "message");
 channel.QueueBind("log", "devops", "log");
 
+// Wait for the service 2 to start
+Process.Start("./wait-for-it.sh", $"{SERVICE_2_ADDR}:{SERVICE_2_PORT}").WaitForExit();
 
 using var client = new HttpClient();
 
@@ -69,6 +71,7 @@ for (int i = 1; i < 21; i++)
 
 channel.BasicPublish(exchange: EXCHANGE_NAME, body: GetBytes(STOP), routingKey: LOG_QUEUE);
 
+// Keep the container running for some reason
 while(true) {
     Thread.Sleep(2000);
     Console.WriteLine("Waiting for docker-compose down");

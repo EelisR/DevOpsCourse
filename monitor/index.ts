@@ -4,9 +4,9 @@ import { execSync } from 'child_process'
 import ampq from 'amqplib'
 
 
-const PORT = env.PORT ?? 8087
-const MQ_ADDRESS = env.MQ_ADDRESS ?? 'localhost'
-const MQ_PORT = env.MQ_PORT ?? 5672
+const PORT = env.PORT ?? 8087 as const
+const MQ_ADDRESS = env.MQ_ADDRESS ?? 'localhost' as const
+const MQ_PORT = env.MQ_PORT ?? 5672 as const
 
 const log_messages: string[] = []
 
