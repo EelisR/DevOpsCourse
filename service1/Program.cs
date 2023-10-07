@@ -4,14 +4,20 @@ using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using RabbitMQ.Client;
+
 
 string SERVICE_2_ADDR = Environment.GetEnvironmentVariable("SERVICE_2_ADDRESS") ?? "localhost";
 string SERVICE_2_PORT = Environment.GetEnvironmentVariable("SERVICE_2_PORT") ?? "8000";
 string OWN_PORT = Environment.GetEnvironmentVariable("OWN_PORT") ?? "4001";
-string MQ_ADDRESS = Environment.GetEnvironmentVariable("MQ_ADDRESS") ?? "localhost";
-const string STOP = "STOP";
 
-Process.Start("./wait-for-it.sh", $"{MQ_ADDRESS}").WaitForExit();
+string MQ_ADDRESS = Environment.GetEnvironmentVariable("MQ_ADDRESS") ?? "localhost";
+string MQ_PORT = Environment.GetEnvironmentVariable("MQ_PORT") ?? "5672";
+
+
+Process.Start("./wait-for-it.sh", $"{MQ_ADDRESS}:{MQ_PORT}").WaitForExit();
+
+var factory = new ConnectionFactory() { HostName = MQ_ADDRESS, Port = int.Parse(MQ_PORT) };
 
 using var client = new HttpClient();
 
@@ -37,8 +43,6 @@ for (int i = 1; i < 21; i++)
         Console.WriteLine(e.Message);
     }
 }
-
-var stopJson = JsonSerializer.Serialize(new ServerMessage { message = STOP });
 
 class ServerMessage
 {

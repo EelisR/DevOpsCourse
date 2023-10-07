@@ -16,7 +16,8 @@ services:
       SERVICE_2_ADDRESS: 10.0.1.4 
       SERVICE_2_PORT: 8000
       OWN_PORT: 4001
-      MQ_ADDRESS: 10.0.1.2:5672
+      MQ_ADDRESS: 10.0.1.2
+      MQ_PORT: 5672
     depends_on: 
       - eelisr-mq
       - eelisr-service2
@@ -33,7 +34,8 @@ services:
       - 8000
     environment:
       PORT: 8000
-      MQ_ADDRESS: 10.0.1.2:5672
+      MQ_ADDRESS: 10.0.1.2
+      MQ_PORT: 5672
     depends_on: 
       - eelisr-mq
     networks:
@@ -48,7 +50,8 @@ services:
     ports:
       - 8087:8087
     environment:
-      MQ_ADDRESS: 10.0.1.2:5672
+      MQ_ADDRESS: 10.0.1.2
+      MQ_PORT: 5672
     depends_on: 
       - eelisr-mq
     networks:

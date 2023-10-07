@@ -5,9 +5,10 @@ const app = express()
 
 const PORT = env.PORT ?? 8000
 const MQ_ADDRESS = env.MQ_ADDRESS ?? 'localhost'
+const MQ_PORT = env.MQ_PORT ?? 5672
 
 console.log('Waiting for MQ to be ready...')
-execSync(`./wait-for-it/wait-for-it.sh ${MQ_ADDRESS}`)
+execSync(`./wait-for-it/wait-for-it.sh ${MQ_ADDRESS}:${MQ_PORT}`)
 console.log('MQ is ready!')
 
 app.use(express.json())

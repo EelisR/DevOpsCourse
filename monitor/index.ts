@@ -4,9 +4,10 @@ import { execSync } from 'child_process'
 const app = express()
 
 const MQ_ADDRESS = env.MQ_ADDRESS ?? 'localhost'
+const MQ_PORT = env.MQ_PORT ?? 5672
 
 console.log('Waiting for MQ to be ready...')
-execSync(`./wait-for-it/wait-for-it.sh ${MQ_ADDRESS}`)
+execSync(`./wait-for-it/wait-for-it.sh ${MQ_ADDRESS}:${MQ_PORT}`)
 console.log('MQ is ready!')
 
 const PORT = env.PORT ?? 8087 
