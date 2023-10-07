@@ -20,7 +20,6 @@ services:
       MQ_PORT: 5672
     depends_on: 
       - eelisr-mq
-      - eelisr-service2
     networks:
       eelisr-network:
         ipv4_address: 10.0.1.3
@@ -38,6 +37,7 @@ services:
       MQ_PORT: 5672
     depends_on: 
       - eelisr-mq
+      - eelisr-service1
     networks:
       eelisr-network:
         ipv4_address: 10.0.1.4
@@ -54,6 +54,8 @@ services:
       MQ_PORT: 5672
     depends_on: 
       - eelisr-mq
+      - eelisr-service1
+      - eelisr-service2
     networks:
       eelisr-network:
         ipv4_address: 10.0.1.5
