@@ -17,7 +17,7 @@ string MQ_PORT = Environment.GetEnvironmentVariable("MQ_PORT") ?? "5672";
 const string EXCHANGE_NAME = "devops";
 const string MESSAGE_QUEUE = "message";
 const string LOG_QUEUE = "log";
-const string STOP = "STOP";
+const string STOP = "SND STOP";
 
 
 Process.Start("./wait-for-it.sh", $"{MQ_ADDRESS}:{MQ_PORT}").WaitForExit();
