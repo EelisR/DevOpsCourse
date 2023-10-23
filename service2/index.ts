@@ -4,6 +4,9 @@ import { execSync } from 'child_process'
 import ampq from 'amqplib'
 const app = express()
 
+console.log('Waiting for 2 seconds...')
+sleepSync(2000)
+
 const PORT = env.PORT ?? 8000 as const
 const MQ_ADDRESS = env.MQ_ADDRESS ?? 'localhost' as const
 const MQ_PORT = env.MQ_PORT ?? 5672 as const
