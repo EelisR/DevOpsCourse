@@ -1,19 +1,26 @@
+playbook="playbook.yaml"
+# Variables for the docker container names
+image_name="eelisr_image"
 host1="eelisr_host1"
 host2="eelisr_host2"
-host3="eelisr_host3"
 
+
+# Ansible configuration
+ansible_user="ansibleuser"
+ansible_hosts="./ansiblehosts"
+
+echo "[ansiblehosts]" > $ansible_hosts
+ 
+# Some password to the ssh user on the container,
+# really not the right way
+echo "ansibleuser" > sudo_password
+
+# Create ssh keys in working directory and move the 
+# public one into the image file
 ssh_key="./ssh_key"
 ssh_pub_key=./hostmachine/ssh_key.pub
 
-docker stop $host1 $host2 $host3
-docker rm $host1 $host2 $host3
-
-inspect_container(){
-  docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $1
-}
-
-
-if test -f "$ssh_pub_key"; 
+if test -f $ssh_pub_key; 
   then
     echo "SSH key $ssh_pub_key exists already, skipping."
   else
@@ -21,10 +28,41 @@ if test -f "$ssh_pub_key";
     mv ./ssh_key.pub ./hostmachine/ssh_key.pub
 fi
 
-docker build ./hostmachine -t eelisr_image
-docker run -d -P --name $host1 eelisr_image
+# Test automation
+# docker stop $host1 $host2 
+# docker rm $host1 $host2 
 
-host1_ip=$(inspect_container $host1)
+# Gets the IP of the spesified docker container
+get_ip(){
+  docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $1
+}
 
-ssh -i ./ssh_key ansibleuser@$host1_ip
+docker build ./hostmachine -t $image_name
 
+docker run -d -P --name $host1 $image_name 
+echo $(get_ip $host1) >> $ansible_hosts
+
+# Run the playbook 
+echo "O1" >> README.rd
+ansible-playbook -v --become-password-file=sudo_password -i $ansible_hosts -u $ansible_user --key-file $ssh_key $playbook | tee -a README.rd
+
+# Run it again
+echo "O2" >> README.rd
+ansible-playbook -v --become-password-file=sudo_password -i $ansible_hosts -u $ansible_user --key-file $ssh_key $playbook | tee -a README.rd
+
+# Create new container
+docker run -d -P --name $host2 $image_name 
+echo $(get_ip $host2) >> $ansible_hosts
+
+# Run playbook
+echo "O3" >> README.rd
+ansible-playbook -v --become-password-file=sudo_password -i $ansible_hosts -u $ansible_user --key-file $ssh_key $playbook| tee -a README.rd
+
+# Run again
+echo "O4" >> README.rd
+ansible-playbook -v --become-password-file=sudo_password -i $ansible_hosts -u $ansible_user --key-file $ssh_key $playbook | tee -a README.rd
+
+# Cleanup
+docker stop $host1 $host2
+docker rm $host1 $host2
+docker image rm $image_name 

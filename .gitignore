@@ -50,3 +50,5 @@ ssh_key
 .ssh*
 *.pub
 
+ansiblehosts
+sudo_password
