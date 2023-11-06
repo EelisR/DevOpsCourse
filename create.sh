@@ -13,7 +13,8 @@ echo "[ansiblehosts]" > $ansible_hosts
  
 # Some password to the ssh user on the container,
 # really not the right way
-echo "ansibleuser" > sudo_password
+sudo_password="sudo_password"
+echo "ansibleuser" > $sudo_password
 
 # Create ssh keys in working directory and move the 
 # public one into the image file
@@ -66,3 +67,4 @@ ansible-playbook -v --become-password-file=sudo_password -i $ansible_hosts -u $a
 docker stop $host1 $host2
 docker rm $host1 $host2
 docker image rm $image_name 
+rm $ansible_hosts $ssh_pub_key $ssh_key $sudo_password
