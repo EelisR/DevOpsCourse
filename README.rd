@@ -19,7 +19,7 @@ my WSL setup on my home computer because of connection issues with docker in Mac
 The docker desktop daemon (a VM) makes it impossible to connect to docker containers via their own IP:s, 
 atleast without creating some custom DNS or something like that. 
 
-See here: (docker docs)[https://docs.docker.com/desktop/networking/]
+See here: https://docs.docker.com/desktop/networking/
 
 On the exercise itself, it was pretty easy all around. I know some Linux, but automating this kind of 
 shell script was new. I think it came out pretty neat, and without too much work. Only the handling of passwords
