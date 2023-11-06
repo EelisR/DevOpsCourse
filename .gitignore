@@ -46,6 +46,7 @@ msbuild.wrn
 node_modules/
 logs/
 
+ssh_key
 .ssh*
 *.pub
 
