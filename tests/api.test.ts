@@ -5,6 +5,7 @@ import { execSync } from "child_process";
 const API = env.API_ADDRESS ?? ("localhost:8087" as const);
 
 beforeAll(() => {
+  console.log("API_ADDRESS:", API);
   console.log("Waiting for API gateway to be ready...");
   execSync(`./wait-for-it/wait-for-it.sh ${API}`);
   console.log("API is ready!");

@@ -27,8 +27,6 @@ services:
   eelisr-service2:
     build:
       context: ./service2
-      args:
-        - MQ_ADDRESS=10.0.1.2:5672
     ports:
       - 8000
     environment:
@@ -45,10 +43,8 @@ services:
   eelisr-monitor:
     build:
       context: ./monitor
-      args:
-        - MQ_ADDRESS=10.0.1.2:5672
     ports:
-      - 8087:8087
+      - 8087
     environment:
       MQ_ADDRESS: 10.0.1.2
       MQ_PORT: 5672
@@ -63,9 +59,11 @@ services:
   eelisr-api:
     build:
       context: ./api
-      args:
-        - SERVICE_1_ADDRESS = 10.0.1.3:4001
-        - MQ_ADDRESS = 10.1.2.2:5672
+    environment:
+      SERVICE_1_ADDRESS: 10.0.1.3:4001
+      MONITOR_ADDRESS: 10.0.1.5:8087
+      MQ_ADDRESS: 10.1.2.2:5672
+      PORT: 8083
     ports:
       - 8083:8083
     depends_on:
@@ -74,7 +72,7 @@ services:
       - eelisr-monitor
     networks:
       eelisr-network:
-        ipv4_address: 10.1.1.6
+        ipv4_address: 10.0.1.6
 
 networks:
   eelisr-network:
