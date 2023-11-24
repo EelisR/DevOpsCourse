@@ -9,19 +9,13 @@ build-job:
     - echo "Building the application"
     - docker compose build
 
-unit-test-job:
+test-job:
   stage: test
   script:
-    - echo "Running unit tests... This will take about 5 seconds."
-    - sleep 5
-    - echo "Code coverage is 90%"
-
-lint-test-job:
-  stage: test
-  script:
-    - echo "Linting code... This will take about 3 seconds."
-    - sleep 3
-    - echo "No lint issues found."
+    - echo "Building the test environment"
+    - docker compose -f docker-compose.test.yaml -p ci-test build
+    - echo "Running tests"
+    - docker compose -f docker-compose.test.yaml -p ci-test up --abort-on-container-exit
 
 deploy-job:
   stage: deploy
