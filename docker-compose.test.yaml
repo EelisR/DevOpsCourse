@@ -60,9 +60,14 @@ services:
       eelisr-network-test:
         ipv4_address: 10.1.2.5
 
-  eelisr-tests:
+  eelisr-api:
     build:
-      context: ./tests
+      context: ./api
+      args:
+        - SERVICE_1_ADDRESS = 10.1.2.3:4001
+        - MQ_ADDRESS = 10.1.2.2:5672
+    ports:
+      - 8083:8083
     depends_on:
       - eelisr-mq-test
       - eelisr-service1-test
@@ -70,7 +75,22 @@ services:
       - eelisr-monitor-test
     networks:
       eelisr-network-test:
-        ipv4_address: 10.1.2.6
+        ipv4_address:
+          - 10.1.2.6
+
+  eelisr-tests:
+    build:
+      context: ./tests
+      args:
+        - API_ADDRESS = 10.1.2.6:8083
+    depends_on:
+      - eelisr-mq-test
+      - eelisr-service1-test
+      - eelisr-service2-test
+      - eelisr-monitor-test
+    networks:
+      eelisr-network-test:
+        ipv4_address: 10.1.2.7
 
 networks:
   eelisr-network-test:
