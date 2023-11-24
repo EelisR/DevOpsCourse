@@ -68,14 +68,14 @@ function startServer() {
 
       const logEntry = `${new Date().toISOString()}: ${
         appState.state
-      }->${state}`;
+      }->${newState}`;
 
       appState.runlog.push(logEntry);
-      appState.state = state;
+      appState.state = newState;
 
       if (state === "SHUTDOWN") {
         console.log("Shutting down...");
-        process.exit(0);
+        execSync("docker compose down");
       }
 
       res.type("text/plain; charset=utf-8");
