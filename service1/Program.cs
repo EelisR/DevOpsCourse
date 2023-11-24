@@ -1,24 +1,14 @@
-﻿using System.Diagnostics;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.Json;
+using System.Diagnostics;
 using RabbitMQ.Client;
-
+using Services;
 
 string SERVICE_2_ADDR = Environment.GetEnvironmentVariable("SERVICE_2_ADDRESS") ?? "localhost";
 string SERVICE_2_PORT = Environment.GetEnvironmentVariable("SERVICE_2_PORT") ?? "8000";
+string Service_2_URl = $"{SERVICE_2_ADDR}:{SERVICE_2_PORT}";
 string OWN_PORT = Environment.GetEnvironmentVariable("OWN_PORT") ?? "4001";
 
 string MQ_ADDRESS = Environment.GetEnvironmentVariable("MQ_ADDRESS") ?? "localhost";
 string MQ_PORT = Environment.GetEnvironmentVariable("MQ_PORT") ?? "5672";
-
-const string EXCHANGE_NAME = "devops";
-const string MESSAGE_QUEUE = "message";
-const string LOG_QUEUE = "log";
-const string STOP = "SND STOP";
-
 
 // Wait for RabbitMQ to start
 Process.Start("./wait-for-it.sh", $"{MQ_ADDRESS}:{MQ_PORT}").WaitForExit();
@@ -34,51 +24,23 @@ channel.QueueBind("message", "devops", "message");
 channel.QueueBind("log", "devops", "log");
 
 // Wait for the service 2 to start
-Process.Start("./wait-for-it.sh", $"{SERVICE_2_ADDR}:{SERVICE_2_PORT}").WaitForExit();
+Process.Start("./wait-for-it.sh", Service_2_URl).WaitForExit();
 
-using var client = new HttpClient();
+var service1 = new Service1(Service_2_URl, OWN_PORT, channel);
+var builder = WebApplication.CreateBuilder(args);
 
-var dns = Dns.GetHostEntry(Dns.GetHostName());
+var app = builder.Build();
 
-// Quite unintuitive
-var ip = dns.AddressList.FirstOrDefault(x => x.AddressFamily == AddressFamily.InterNetwork);
+service1.SetState(ServiceState.INIT);
 
-string GetTimeStamp() => DateTime.Now.ToUniversalTime().ToString("o");
-Byte[] GetBytes(string str) => Encoding.UTF8.GetBytes(str);
-
-
-for (int i = 1; i < 21; i++)
-{
-    Thread.Sleep(2000);
-    var message = $"SND {i} {GetTimeStamp()} {SERVICE_2_ADDR}:{SERVICE_2_PORT}";
-
-    channel.BasicPublish(exchange: EXCHANGE_NAME, body: GetBytes(message), routingKey: MESSAGE_QUEUE);
-
-    var json = JsonSerializer.Serialize(new ServerMessage { message = message, origin = $"{ip}:{OWN_PORT}" });
-    var jsonContent = new StringContent(json, Encoding.UTF8, new MediaTypeHeaderValue("application/json"));
-
-    try
+app.MapPost(
+    "/",
+    (ServiceState state) =>
     {
-        var res = await client.PostAsync($"http://{SERVICE_2_ADDR}:{SERVICE_2_PORT}", jsonContent );
-        channel.BasicPublish(exchange: EXCHANGE_NAME, body: GetBytes($"{(int)res.StatusCode} {GetTimeStamp()}"), routingKey: LOG_QUEUE);
+        Console.WriteLine($"State change requested. New state: {state}");
+        service1.SetState(state);
+        return "state";
     }
-    catch (Exception e)
-    {
-        Console.WriteLine(e.Message);
-        channel.BasicPublish(exchange: EXCHANGE_NAME, body: GetBytes(e.Message), routingKey: LOG_QUEUE);
-    }
-}
+);
 
-channel.BasicPublish(exchange: EXCHANGE_NAME, body: GetBytes(STOP), routingKey: LOG_QUEUE);
-
-// Keep the container running for some reason
-while(true) {
-    Thread.Sleep(2000);
-    Console.WriteLine("Waiting for docker-compose down");
-}
-
-class ServerMessage
-{
-    public string message { get; set; } = "";
-    public string origin { get; set; } = "";
-}
+app.Run();

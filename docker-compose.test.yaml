@@ -18,6 +18,7 @@ services:
       OWN_PORT: 4001
       MQ_ADDRESS: 10.1.2.2
       MQ_PORT: 5672
+      ASPNETCORE_HTTP_PORTS: 4001
     depends_on:
       - eelisr-mq-test
     networks:
