@@ -10,11 +10,17 @@ const MQ_ADDRESS = env.MQ_ADDRESS ?? "10.1.2.2:5672";
 
 await waitForServices();
 
+type State = "INIT" | "RUNNING" | "PAUSED" | "STOPPED";
+
+const appState = {
+  state: "INIT" as State,
+  runlog: [] as string[],
+};
+
 startServer();
 
 function startServer() {
   const app = express();
-  app.use(express.json());
 
   app.get("/healthcheck", (_, res) => {
     res.status(200);
@@ -34,10 +40,50 @@ function startServer() {
     }
   });
 
+  app.put("/state", async (req, res) => {
+    try {
+      const state = req.body;
+      console.log("Received state", state);
+
+      if (!isState(state)) {
+        res.status(400);
+        res.send("Invalid state");
+        return;
+      }
+
+      const response = await fetch(
+        `http://${SERVICE_1_ADDRESS}/state/${state}`,
+        {
+          method: "PUT",
+        }
+      );
+
+      const text = await response.text();
+
+      const logEntry = `${new Date().toISOString()}: ${
+        appState.state
+      }->${state}`;
+
+      appState.runlog.push(logEntry);
+      appState.state = state;
+
+      res.type("text/plain; charset=utf-8");
+      res.send(text);
+    } catch (e) {
+      console.log(e);
+      res.status(500);
+      res.send("Internal server error");
+    }
+  });
+
   app.listen(PORT);
   console.log("Server is running on port", PORT);
 
   return app;
+}
+
+function isState(state: string): state is State {
+  return ["INIT", "RUNNING", "PAUSED", "STOPPED"].includes(state);
 }
 
 async function waitForServices() {

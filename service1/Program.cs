@@ -34,8 +34,8 @@ builder.Services.AddSingleton(service1);
 var app = builder.Build();
 app.Services.GetService<Service1>()?.SetState(ServiceState.INIT);
 
-app.MapPost(
-    "/",
+app.MapPut(
+    "/state/{state}",
     (ServiceState state) =>
     {
         if (state == ServiceState.SHUTDOWN)
