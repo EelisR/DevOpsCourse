@@ -10,7 +10,7 @@ const MQ_ADDRESS = env.MQ_ADDRESS ?? "10.1.2.2:5672";
 
 await waitForServices();
 
-type State = "INIT" | "RUNNING" | "PAUSED" | "STOPPED";
+type State = "INIT" | "RUNNING" | "PAUSED" | "SHUTDOWN";
 
 const appState = {
   state: "INIT" as State,
@@ -59,8 +59,8 @@ function startServer() {
         }
       );
 
-      const text = await response.text();
-      if (!isState(text)) {
+      const newState = await response.text();
+      if (!isState(newState)) {
         res.status(500);
         res.send("Received invalid state from service 1");
         return;
@@ -73,8 +73,13 @@ function startServer() {
       appState.runlog.push(logEntry);
       appState.state = state;
 
+      if (state === "SHUTDOWN") {
+        console.log("Shutting down...");
+        process.exit(0);
+      }
+
       res.type("text/plain; charset=utf-8");
-      res.send(text);
+      res.send(newState);
     } catch (e) {
       console.log(e);
       res.status(500);
@@ -89,7 +94,7 @@ function startServer() {
 }
 
 function isState(state: string): state is State {
-  return ["INIT", "RUNNING", "PAUSED", "STOPPED"].includes(state);
+  return ["INIT", "RUNNING", "PAUSED", "SHUTDOWN"].includes(state);
 }
 
 async function waitForServices() {
