@@ -24,10 +24,10 @@ namespace Services
             _ownPort = ownPort;
         }
 
-        public void SetState(ServiceState state)
+        public ServiceState? SetState(ServiceState state)
         {
             if (_state != null && state == _state)
-                return;
+                return _state;
 
             switch (state)
             {
@@ -46,6 +46,8 @@ namespace Services
                     _state = ServiceState.SHUTDOWN;
                     break;
             }
+
+            return _state;
         }
 
         private static string GetTimeStamp() => DateTime.Now.ToUniversalTime().ToString("o");
