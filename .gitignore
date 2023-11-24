@@ -1,4 +1,5 @@
 *.swp
+*builds*
 *.*~
 *.js
 project.lock.json

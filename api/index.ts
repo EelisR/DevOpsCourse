@@ -21,6 +21,20 @@ function startServer() {
     res.send("OK");
   });
 
+  app.get("/messages", async (_, res) => {
+    try {
+      const messageResponse = await fetch(
+        `http://${SERVICE_1_ADDRESS}/messages`
+      );
+      const text = await messageResponse.text();
+      res.type("text/plain; charset=utf-8");
+      res.send(text);
+    } catch (e) {
+      res.status(500);
+      res.send("Internal server error");
+    }
+  });
+
   app.listen(PORT);
   console.log("Server is running on port", PORT);
 
