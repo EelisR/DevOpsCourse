@@ -63,6 +63,7 @@ services:
       SERVICE_1_ADDRESS: 10.1.2.3:4001
       MQ_ADDRESS: 10.1.2.2:5672
       MONITOR_ADDRESS: 10.1.2.5
+      PORT: 8083
     ports:
       - 8083:8083
     depends_on:
