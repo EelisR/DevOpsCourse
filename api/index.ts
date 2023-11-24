@@ -21,6 +21,7 @@ startServer();
 
 function startServer() {
   const app = express();
+  app.use(express.text({ type: "*/*" }));
 
   app.get("/healthcheck", (_, res) => {
     res.status(200);
@@ -59,6 +60,11 @@ function startServer() {
       );
 
       const text = await response.text();
+      if (!isState(text)) {
+        res.status(500);
+        res.send("Received invalid state from service 1");
+        return;
+      }
 
       const logEntry = `${new Date().toISOString()}: ${
         appState.state

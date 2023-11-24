@@ -45,7 +45,7 @@ app.MapPut(
         }
         Console.WriteLine($"State change requested. New state: {state}");
         app.Services.GetService<Service1>()?.SetState(state);
-        return "state";
+        return state.ToString();
     }
 );
 
