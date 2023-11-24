@@ -75,8 +75,7 @@ services:
       - eelisr-monitor-test
     networks:
       eelisr-network-test:
-        ipv4_address:
-          - 10.1.2.6
+        ipv4_address: 10.1.2.6
 
   eelisr-tests:
     build:
