@@ -87,6 +87,16 @@ function startServer() {
     }
   });
 
+  app.get("/state", (_, res) => {
+    res.type("text/plain; charset=utf-8");
+    res.send(appState.state);
+  });
+
+  app.get("/run-log", (_, res) => {
+    res.type("text/plain; charset=utf-8");
+    res.send(appState.runlog.join("\n"));
+  });
+
   app.listen(PORT);
   console.log("Server is running on port", PORT);
 
