@@ -7,7 +7,7 @@ const API = env.API_ADDRESS ?? ("localhost:8087" as const);
 beforeAll(() => {
   console.log("API_ADDRESS:", API);
   console.log("Waiting for API gateway to be ready...");
-  execSync(`./wait-for-it/wait-for-it.sh ${API}`);
+  execSync(`./wait-for-it/wait-for-it.sh ${API} -t 60`);
   console.log("API is ready!");
   sleepSync(3000);
 });
@@ -35,5 +35,6 @@ test("Messages should return with a 200 status code", async () => {
 test("Messages should contain multiple lines of text", async () => {
   const res = await fetch(`http://${API}/messages`);
   const text = await res.text();
+  console.log(text);
   expect(text.split("\n").length).toBeGreaterThan(1);
 });

@@ -1,6 +1,6 @@
 import { env, sleepSync } from "bun";
 import express from "express";
-import { exec } from "child_process";
+import { execSync } from "child_process";
 
 const PORT = env.PORT ?? 8083;
 
@@ -23,13 +23,12 @@ function startServer() {
 
   app.get("/messages", async (_, res) => {
     try {
-      const messageResponse = await fetch(
-        `http://${SERVICE_1_ADDRESS}/messages`
-      );
+      const messageResponse = await fetch(`http://${MONITOR_ADDRESS}`);
       const text = await messageResponse.text();
       res.type("text/plain; charset=utf-8");
       res.send(text);
     } catch (e) {
+      console.log(e);
       res.status(500);
       res.send("Internal server error");
     }
@@ -43,7 +42,7 @@ function startServer() {
 
 async function waitForServices() {
   const promises = [
-    waitForService(SERVICE_1_ADDRESS),
+    //waitForService(SERVICE_1_ADDRESS),
     waitForService(MONITOR_ADDRESS),
     waitForService(MQ_ADDRESS),
   ];
@@ -52,8 +51,8 @@ async function waitForServices() {
 }
 
 async function waitForService(service: string) {
-  console.log("Waiting for service to be ready...");
-  exec(`./wait-for-it/wait-for-it.sh ${service}`);
-  console.log("Service is ready!");
+  console.log(`Waiting for service ${service} to be ready...`);
+  execSync(`./wait-for-it/wait-for-it.sh ${service} -t 60`);
+  console.log(`Service ${service} is ready!`);
   sleepSync(1000);
 }
