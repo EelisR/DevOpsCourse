@@ -37,6 +37,7 @@ namespace Services
                     Sender();
                     break;
                 case ServiceState.RUNNING:
+                    _state = ServiceState.RUNNING;
                     Sender();
                     break;
                 case ServiceState.PAUSED:
