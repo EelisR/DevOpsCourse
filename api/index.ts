@@ -42,7 +42,7 @@ function startServer() {
 
 async function waitForServices() {
   const promises = [
-    //waitForService(SERVICE_1_ADDRESS),
+    waitForService(SERVICE_1_ADDRESS),
     waitForService(MONITOR_ADDRESS),
     waitForService(MQ_ADDRESS),
   ];

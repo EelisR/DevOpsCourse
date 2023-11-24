@@ -1,5 +1,5 @@
 import { env, sleepSync } from "bun";
-import { test, expect, beforeAll } from "bun:test";
+import { test, expect, beforeAll, beforeEach } from "bun:test";
 import { execSync } from "child_process";
 
 const API = env.API_ADDRESS ?? ("localhost:8087" as const);
@@ -11,6 +11,8 @@ beforeAll(() => {
   console.log("API is ready!");
   sleepSync(3000);
 });
+
+beforeEach(() => sleepSync(2000));
 
 // Basic test
 test("should hello world", () => {

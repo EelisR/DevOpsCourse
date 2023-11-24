@@ -27,18 +27,24 @@ channel.QueueBind("log", "devops", "log");
 Process.Start("./wait-for-it.sh", Service_2_URl).WaitForExit();
 
 var service1 = new Service1(Service_2_URl, OWN_PORT, channel);
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton(service1);
 
 var app = builder.Build();
-
-service1.SetState(ServiceState.INIT);
+app.Services.GetService<Service1>()?.SetState(ServiceState.INIT);
 
 app.MapPost(
     "/",
     (ServiceState state) =>
     {
+        if (state == ServiceState.SHUTDOWN)
+        {
+            Console.WriteLine("Shutting down");
+            Environment.Exit(0);
+        }
         Console.WriteLine($"State change requested. New state: {state}");
-        service1.SetState(state);
+        app.Services.GetService<Service1>()?.SetState(state);
         return "state";
     }
 );

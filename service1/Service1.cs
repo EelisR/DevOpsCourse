@@ -15,7 +15,7 @@ namespace Services
         private readonly IModel _channel;
         private int _runningNumber = 0;
 
-        private ServiceState _state = ServiceState.INIT;
+        private ServiceState? _state = null;
 
         public Service1(string service2Addr, string ownPort, IModel channel)
         {
@@ -26,7 +26,7 @@ namespace Services
 
         public void SetState(ServiceState state)
         {
-            if (state == _state)
+            if (_state != null && state == _state)
                 return;
 
             switch (state)
@@ -54,6 +54,7 @@ namespace Services
 
         public async void Sender()
         {
+            Console.WriteLine("Starting sender");
             using var client = new HttpClient();
 
             var dns = Dns.GetHostEntry(Dns.GetHostName());
