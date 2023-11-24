@@ -22,5 +22,5 @@ deploy-job:
   environment: production
   script:
     - echo "Deploying application..."
-    - docker compose up -d
-    - echo "Application successfully deployed."
+    - docker compose -f docker-compose.yaml -p ci-prod build
+    - docker compose -f docker-compose.yaml -p ci-prod up -d
