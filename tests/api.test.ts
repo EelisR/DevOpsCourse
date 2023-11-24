@@ -91,5 +91,5 @@ test("API should not respond anymore after SHUTDOWN", async () => {
 
   sleepSync(3000);
 
-  expect(fetch(`http://${API}/state`)).toThrow();
+  expect(() => fetch(`http://${API}/state`)).toThrow();
 });
