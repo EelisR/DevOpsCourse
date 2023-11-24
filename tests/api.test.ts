@@ -12,7 +12,9 @@ beforeAll(() => {
   sleepSync(3000);
 });
 
-beforeEach(() => sleepSync(2000));
+beforeEach(async () => {
+  sleepSync(2000);
+});
 
 // Basic test
 test("should hello world", () => {
@@ -82,6 +84,26 @@ test("API should respond with state PAUSED after PAUSED", async () => {
   expect(responseState).toBe("PAUSED");
 });
 
+test("API should return current state", async () => {
+  const res = await fetch(`http://${API}/state`);
+  const responseState = await res.text();
+  expect(res.status).toBe(200);
+  expect(responseState).toBeString();
+
+  expect(
+    ["INIT", "RUNNING", "PAUSED", "SHUTDOWN"].includes(responseState)
+  ).toBeTrue();
+});
+
+test("API should return the running log", async () => {
+  const res = await fetch(`http://${API}/run-log`);
+  const log = await res.text();
+  expect(res.status).toBe(200);
+  expect(log).toBeString();
+  expect(log.split("\n").length).toBeGreaterThan(1);
+});
+
+// This last because it shuts down the API
 test("API should not respond anymore after SHUTDOWN", async () => {
   await fetch(`http://${API}/state`, {
     method: "PUT",
