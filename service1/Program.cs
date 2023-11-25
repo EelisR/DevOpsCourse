@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Middleware;
 using RabbitMQ.Client;
 using Services;
 
@@ -35,7 +34,6 @@ builder.Services.AddSingleton(service1);
 var app = builder.Build();
 app.Services.GetService<Service1>()?.SetState(Enums.ServiceState.INIT);
 
-app.UseMiddleware<ShutDownMiddleware>(channel);
 app.MapPut(
     "/state/{state}",
     (Enums.ServiceState state) =>
@@ -43,6 +41,17 @@ app.MapPut(
         Console.WriteLine($"State change requested. New state: {state}");
         var newState = app.Services.GetService<Service1>()?.SetState(state);
         return newState.ToString();
+    }
+);
+
+app.MapGet(
+    "/shutdown",
+    () =>
+    {
+        Console.WriteLine("Shutdown requested");
+        connection.Abort();
+        connection.Dispose();
+        return 200;
     }
 );
 

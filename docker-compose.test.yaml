@@ -62,6 +62,7 @@ services:
       context: ./api
     environment:
       SERVICE_1_ADDRESS: 10.1.2.3:4001
+      SERVICE_2_ADDRESS: 10.1.2.4:8000
       MQ_ADDRESS: 10.1.2.2:5672
       MONITOR_ADDRESS: 10.1.2.5:8087
       PORT: 8083

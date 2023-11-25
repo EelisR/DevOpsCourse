@@ -1,10 +1,11 @@
 import { env, sleepSync } from "bun";
 import express from "express";
-import { exec, execSync } from "child_process";
+import { execSync } from "child_process";
 
 const PORT = env.PORT ?? 8083;
 
 const SERVICE_1_ADDRESS = env.SERVICE_1_ADDRESS ?? "10.0.1.3:4001";
+const SERVICE_2_ADDRESS = env.SERVICE_2_ADDRESS ?? "10.0.1.4.4002";
 const MONITOR_ADDRESS = env.MONITOR_ADDRESS ?? "10.0.1.5:8087";
 const MQ_ADDRESS = env.MQ_ADDRESS ?? "10.1.2.2:5672";
 
@@ -43,12 +44,19 @@ function startServer() {
 
   app.put(
     "/state",
-    (req, _, next) => {
+    async (req, _, next) => {
       const state = req.body;
       console.log("Received state", state);
       next();
+      console.log("After next");
       if (isState(state) && state == "SHUTDOWN") {
-        exec("docker compose down");
+        console.log("Sending shutdown to monitor");
+        await fetch(`http://${MONITOR_ADDRESS}/shutdown`);
+        console.log("Sending shutdown to service 2");
+        await fetch(`http://${SERVICE_2_ADDRESS}/shutdown`);
+        console.log("Sending shutdown to service 1");
+        await fetch(`http://${SERVICE_1_ADDRESS}/shutdown`);
+        process.exit();
       }
     },
     async (req, res) => {
