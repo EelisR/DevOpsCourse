@@ -8,6 +8,7 @@ const SERVICE_1_ADDRESS = env.SERVICE_1_ADDRESS ?? "10.0.1.3:4001";
 const SERVICE_2_ADDRESS = env.SERVICE_2_ADDRESS ?? "10.0.1.4.4002";
 const MONITOR_ADDRESS = env.MONITOR_ADDRESS ?? "10.0.1.5:8087";
 const MQ_ADDRESS = env.MQ_ADDRESS ?? "10.1.2.2:5672";
+const MQ_MONITOR_ADDRESS = env.MQ_MONITOR_ADDRESS ?? "10.1.2.2:15672";
 
 await waitForServices();
 
@@ -120,6 +121,15 @@ function startServer() {
     }
 
     res.send(state);
+  });
+
+  app.get("/mqstatistic", express.json(), async (_, res) => {
+    try {
+    } catch (e) {
+      console.log(e);
+      res.status(500);
+      res.send("Internal server error");
+    }
   });
 
   app.get("/run-log", (_, res) => {

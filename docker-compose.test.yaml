@@ -1,6 +1,6 @@
 services:
   eelisr-mq-test:
-    image: rabbitmq:3
+    image: rabbitmq:3-management
     ports:
       - 5672
       - 15672
@@ -65,6 +65,7 @@ services:
       SERVICE_2_ADDRESS: 10.1.2.4:8000
       MQ_ADDRESS: 10.1.2.2:5672
       MONITOR_ADDRESS: 10.1.2.5:8087
+      MQ_MONITOR_ADDRESS: 10.0.1.2:15672
       PORT: 8083
     ports:
       - 8083
