@@ -103,19 +103,6 @@ test("API should return the running log", async () => {
   expect(log.split("\n").length).toBeGreaterThan(1);
 });
 
-// This last because it shuts down the API
-test("API should not respond anymore after SHUTDOWN", async () => {
-  await fetch(`http://${API}/state`, {
-    method: "PUT",
-    headers: { "Content-Type": "text/plain" },
-    body: "SHUTDOWN",
-  });
-
-  sleepSync(5000);
-
-  expect(async () => await fetch(`http://${API}/healthcheck`)).toThrow();
-});
-
 test("API should return the MQ statistics", async () => {
   const res = await fetch(`http://${API}/mqstatistics`, {
     headers: {
@@ -127,4 +114,17 @@ test("API should return the MQ statistics", async () => {
   expect(res.status).toBe(200);
   expect(statistics).toHaveProperty("overview");
   expect(statistics).toHaveProperty("queues");
+});
+
+// This last because it shuts down the API
+test("API should not respond anymore after SHUTDOWN", async () => {
+  await fetch(`http://${API}/state`, {
+    method: "PUT",
+    headers: { "Content-Type": "text/plain" },
+    body: "SHUTDOWN",
+  });
+
+  sleepSync(5000);
+
+  expect(async () => await fetch(`http://${API}/healthcheck`)).toThrow();
 });
