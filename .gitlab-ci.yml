@@ -23,4 +23,4 @@ deploy-job:
   script:
     - echo "Deploying application..."
     - docker compose -f docker-compose.yaml -p ci-prod build
-    - docker compose -f docker-compose.yaml -p ci-prod up -d --abort-on-container-exit --remove-orphans
+    - docker compose -f docker-compose.yaml -p ci-prod up -d --remove-orphans

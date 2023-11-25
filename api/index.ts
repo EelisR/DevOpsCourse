@@ -1,6 +1,6 @@
 import { env, sleepSync } from "bun";
 import express from "express";
-import { execSync } from "child_process";
+import { exec, execSync } from "child_process";
 
 const PORT = env.PORT ?? 8083;
 
@@ -41,51 +41,56 @@ function startServer() {
     }
   });
 
-  app.put("/state", async (req, res) => {
-    try {
+  app.put(
+    "/state",
+    (req, _, next) => {
       const state = req.body;
       console.log("Received state", state);
-
-      if (!isState(state)) {
-        res.status(400);
-        res.send("Invalid state");
-        return;
+      next();
+      if (isState(state) && state == "SHUTDOWN") {
+        exec("docker compose down");
       }
+    },
+    async (req, res) => {
+      try {
+        const state = req.body;
 
-      const response = await fetch(
-        `http://${SERVICE_1_ADDRESS}/state/${state}`,
-        {
-          method: "PUT",
+        if (!isState(state)) {
+          res.status(400);
+          res.send("Invalid state");
+          return;
         }
-      );
 
-      const newState = await response.text();
-      if (!isState(newState)) {
+        const response = await fetch(
+          `http://${SERVICE_1_ADDRESS}/state/${state}`,
+          {
+            method: "PUT",
+          }
+        );
+
+        const newState = await response.text();
+        if (!isState(newState)) {
+          res.status(500);
+          res.send("Received invalid state from service 1");
+          return;
+        }
+
+        const logEntry = `${new Date().toISOString()}: ${
+          appState.state
+        }->${newState}`;
+
+        appState.runlog.push(logEntry);
+        appState.state = newState;
+
+        res.type("text/plain; charset=utf-8");
+        res.send(newState);
+      } catch (e) {
+        console.log(e);
         res.status(500);
-        res.send("Received invalid state from service 1");
-        return;
+        res.send("Internal server error");
       }
-
-      const logEntry = `${new Date().toISOString()}: ${
-        appState.state
-      }->${newState}`;
-
-      appState.runlog.push(logEntry);
-      appState.state = newState;
-
-      if (state === "SHUTDOWN") {
-        console.log("Shutting down...");
-        execSync("docker compose down");
-      }
-
-      res.type("text/plain; charset=utf-8");
-      res.send(newState);
-    } catch (e) {
-      console.log(e);
-      res.status(500);
-      res.send("Internal server error");
     }
-  });
+  );
 
   app.get("/state", (_, res) => {
     res.type("text/plain; charset=utf-8");
