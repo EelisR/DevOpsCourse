@@ -100,9 +100,26 @@ function startServer() {
     }
   );
 
-  app.get("/state", (_, res) => {
+  app.get("/state", async (_, res) => {
     res.type("text/plain; charset=utf-8");
-    res.send(appState.state);
+    const stateRes = await fetch(`http://${SERVICE_1_ADDRESS}/state`);
+    const state = await stateRes.text();
+    if (!isState(state)) {
+      res.status(500);
+      res.send("Received invalid state from service 1");
+      return;
+    }
+
+    if (state != appState.state) {
+      const logEntry = `${new Date().toISOString()}: ${
+        appState.state
+      }->${state}`;
+
+      appState.runlog.push(logEntry);
+      appState.state = state;
+    }
+
+    res.send(state);
   });
 
   app.get("/run-log", (_, res) => {

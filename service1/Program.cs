@@ -33,6 +33,8 @@ builder.Services.AddSingleton(service1);
 
 var app = builder.Build();
 
+app.Services.GetService<Service1>()?.Sender();
+
 app.MapPut(
     "/state/{state}",
     (Enums.ServiceState state) =>
@@ -42,6 +44,8 @@ app.MapPut(
         return newState.ToString();
     }
 );
+
+app.MapGet("/state", () => app.Services.GetService<Service1>()?.GetState().ToString());
 
 app.MapGet(
     "/shutdown",
@@ -63,4 +67,3 @@ app.MapGet(
 );
 
 app.Run();
-app.Services.GetService<Service1>()?.SetState(Enums.ServiceState.RUNNING);
