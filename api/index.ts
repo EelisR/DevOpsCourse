@@ -19,6 +19,7 @@ const appState = {
   runlog: [] as string[],
 };
 
+const started = new Date().toISOString();
 startServer();
 
 function startServer() {
@@ -33,6 +34,7 @@ function startServer() {
     const html = `
     <div>
     <h1>Service 3</h1>
+    <h2>Started: ${started}</h2>
     <h2>State: ${appState.state}</h2>
     <h2>Run log:</h2>
     <pre>${appState.runlog.join("\n")}</pre>
