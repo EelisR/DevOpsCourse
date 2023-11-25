@@ -188,3 +188,20 @@ export type SampleRetentionPolicies = {
   basic?: number[];
   detailed?: number[];
 };
+
+export type InfoResponse = {
+  queues: {
+    name: string;
+    messageDeliveryRate: number;
+    messagePublishingRate: number;
+    messagesDeliveredRecently: number;
+    messagesPublishedRecently: number;
+  }[];
+  overview: {
+    productVersion: string;
+    erlangVersion: string;
+    rabbitmqVersion: string;
+    ports: (number | undefined)[];
+    managemenversion: string;
+  };
+};
