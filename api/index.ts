@@ -1,6 +1,7 @@
 import { env, sleepSync } from "bun";
 import express from "express";
 import { execSync } from "child_process";
+import { OverviewResponse, QueueResponse } from "./types";
 
 const PORT = env.PORT ?? 8083;
 
@@ -125,6 +126,36 @@ function startServer() {
 
   app.get("/mqstatistic", express.json(), async (_, res) => {
     try {
+      const queueResponse = await fetchFromMqMonitor(
+        "api/queues?page=1&page_size=10"
+      );
+      const queueJson = (await queueResponse.json()) as QueueResponse;
+      const queues = queueJson.items ?? [];
+      const requiredInfo = queues.map((queue) => ({
+        name: queue.name ?? "",
+        messageDeliveryRate:
+          queue.message_stats?.deliver_get_details?.rate ?? 0,
+        messagePublishingRate: queue.message_stats?.publish_details?.rate ?? 0,
+        messagesDeliveredRecently: queue.message_stats?.deliver_get ?? 0,
+        messagesPublishedRecently: queue.message_stats?.publish ?? 0,
+      }));
+
+      const overviewResponse = await fetchFromMqMonitor("api/overview");
+      const overviewJson = (await overviewResponse.json()) as OverviewResponse;
+      const importantInfo = {
+        productVersion: overviewJson.product_version ?? "",
+        erlangVersion: overviewJson.erlang_version ?? "",
+        rabbitmqVersion: overviewJson.rabbitmq_version ?? "",
+        ports: overviewJson.listeners?.map((listener) => listener.port) ?? [],
+        managemenversion: overviewJson.management_version ?? "",
+      };
+
+      const response = {
+        queues: requiredInfo,
+        overview: importantInfo,
+      };
+      res.type("application/json; charset=utf-8");
+      res.send(JSON.stringify(response));
     } catch (e) {
       console.log(e);
       res.status(500);
@@ -155,6 +186,16 @@ async function waitForServices() {
   ];
 
   await Promise.all(promises);
+}
+
+async function fetchFromMqMonitor(path: string) {
+  const response = await fetch(`http://${MQ_MONITOR_ADDRESS}/${path}`, {
+    headers: {
+      Authorization: `Basic ${Buffer.from("guest:guest").toString("base64")}`,
+    },
+  });
+
+  return response;
 }
 
 async function waitForService(service: string) {
