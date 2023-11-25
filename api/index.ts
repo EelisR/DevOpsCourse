@@ -51,11 +51,11 @@ function startServer() {
       console.log("After next");
       if (isState(state) && state == "SHUTDOWN") {
         console.log("Sending shutdown to monitor");
-        await fetch(`http://${MONITOR_ADDRESS}/shutdown`);
+        await shutdown(MONITOR_ADDRESS);
         console.log("Sending shutdown to service 2");
-        await fetch(`http://${SERVICE_2_ADDRESS}/shutdown`);
+        await shutdown(SERVICE_2_ADDRESS);
         console.log("Sending shutdown to service 1");
-        await fetch(`http://${SERVICE_1_ADDRESS}/shutdown`);
+        await shutdown(SERVICE_1_ADDRESS);
         process.exit();
       }
     },
@@ -135,4 +135,12 @@ async function waitForService(service: string) {
   execSync(`./wait-for-it/wait-for-it.sh ${service} -t 60`);
   console.log(`Service ${service} is ready!`);
   sleepSync(1000);
+}
+
+async function shutdown(service: string) {
+  try {
+    await fetch(`http://${service}/shutdown`);
+  } catch (e) {
+    console.log(`Service shutdown since connection shutdown ${service}`);
+  }
 }

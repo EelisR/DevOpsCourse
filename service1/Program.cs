@@ -32,7 +32,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton(service1);
 
 var app = builder.Build();
-app.Services.GetService<Service1>()?.SetState(Enums.ServiceState.INIT);
 
 app.MapPut(
     "/state/{state}",
@@ -51,8 +50,17 @@ app.MapGet(
         Console.WriteLine("Shutdown requested");
         connection.Abort();
         connection.Dispose();
-        return 200;
+        var stopped = app.StopAsync();
+        if (stopped.IsCompletedSuccessfully)
+        {
+            return 200;
+        }
+        else
+        {
+            return 500;
+        }
     }
 );
 
 app.Run();
+app.Services.GetService<Service1>()?.SetState(Enums.ServiceState.RUNNING);

@@ -15,7 +15,7 @@ namespace Services
         private readonly IModel _channel;
         private int _runningNumber = 0;
 
-        private ServiceState? _state = null;
+        private ServiceState _state = ServiceState.INIT;
 
         public Service1(string service2Addr, string ownPort, IModel channel)
         {
@@ -28,7 +28,7 @@ namespace Services
 
         public ServiceState? SetState(ServiceState state)
         {
-            if (_state != null && state == _state)
+            if (state == _state)
                 return _state;
 
             switch (state)

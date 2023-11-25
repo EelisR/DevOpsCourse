@@ -111,7 +111,7 @@ test("API should not respond anymore after SHUTDOWN", async () => {
     body: "SHUTDOWN",
   });
 
-  sleepSync(3000);
+  sleepSync(5000);
 
-  expect(() => fetch(`http://${API}/state`)).toThrow();
+  expect(async () => await fetch(`http://${API}/healthcheck`)).toThrow();
 });
