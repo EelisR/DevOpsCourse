@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using Constants;
+using Enums;
 using RabbitMQ.Client;
 
 namespace Services
@@ -23,6 +23,8 @@ namespace Services
             _channel = channel;
             _ownPort = ownPort;
         }
+
+        public ServiceState? GetState() => _state;
 
         public ServiceState? SetState(ServiceState state)
         {
@@ -45,6 +47,7 @@ namespace Services
                     break;
                 case ServiceState.SHUTDOWN:
                     _state = ServiceState.SHUTDOWN;
+                    _runningNumber = 0;
                     break;
             }
 
@@ -78,13 +81,13 @@ namespace Services
                 var message = $"SND {_runningNumber} {GetTimeStamp()} {_service2Addr}";
 
                 _channel.BasicPublish(
-                    exchange: MessageConstants.EXCHANGE_NAME,
+                    exchange: Data.Constants.EXCHANGE_NAME,
                     body: GetBytes(message),
-                    routingKey: MessageConstants.MESSAGE_QUEUE
+                    routingKey: Data.Constants.MESSAGE_QUEUE
                 );
 
                 var json = JsonSerializer.Serialize(
-                    new ServerMessage { message = message, origin = $"{ip}:{_ownPort}" }
+                    new Classes.ServerMessage { message = message, origin = $"{ip}:{_ownPort}" }
                 );
                 var jsonContent = new StringContent(
                     json,
@@ -96,35 +99,21 @@ namespace Services
                 {
                     var res = await client.PostAsync($"http://{_service2Addr}", jsonContent);
                     _channel.BasicPublish(
-                        exchange: MessageConstants.EXCHANGE_NAME,
+                        exchange: Data.Constants.EXCHANGE_NAME,
                         body: GetBytes($"{(int)res.StatusCode} {GetTimeStamp()}"),
-                        routingKey: MessageConstants.LOG_QUEUE
+                        routingKey: Data.Constants.LOG_QUEUE
                     );
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                     _channel.BasicPublish(
-                        exchange: MessageConstants.EXCHANGE_NAME,
+                        exchange: Data.Constants.EXCHANGE_NAME,
                         body: GetBytes(e.Message),
-                        routingKey: MessageConstants.LOG_QUEUE
+                        routingKey: Data.Constants.LOG_QUEUE
                     );
                 }
             }
         }
-    }
-
-    public enum ServiceState
-    {
-        INIT,
-        RUNNING,
-        PAUSED,
-        SHUTDOWN
-    }
-
-    class ServerMessage
-    {
-        public string message { get; set; } = "";
-        public string origin { get; set; } = "";
     }
 }
