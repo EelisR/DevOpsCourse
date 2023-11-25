@@ -115,3 +115,16 @@ test("API should not respond anymore after SHUTDOWN", async () => {
 
   expect(async () => await fetch(`http://${API}/healthcheck`)).toThrow();
 });
+
+test("API should return the MQ statistics", async () => {
+  const res = await fetch(`http://${API}/mqstatistics`, {
+    headers: {
+      "Content-type": "application/json; charset=utf-8",
+    },
+  });
+
+  const statistics = await res.json();
+  expect(res.status).toBe(200);
+  expect(statistics).toHaveProperty("overview");
+  expect(statistics).toHaveProperty("queues");
+});
