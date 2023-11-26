@@ -56,7 +56,7 @@ function startServer() {
 
 function waitForMQ() {
   console.log("Waiting for MQ to be ready...");
-  execSync(`./wait-for-it/wait-for-it.sh ${MQ_ADDRESS}:${MQ_PORT}`);
+  execSync(`./wait-for-it/wait-for-it.sh ${MQ_ADDRESS}:${MQ_PORT} -t 120`);
   console.log("MQ is ready!");
   console.log("Waiting couple of secs for queue inits");
   sleepSync(3000);

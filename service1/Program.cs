@@ -11,7 +11,7 @@ string MQ_ADDRESS = Environment.GetEnvironmentVariable("MQ_ADDRESS") ?? "localho
 string MQ_PORT = Environment.GetEnvironmentVariable("MQ_PORT") ?? "5672";
 
 // Wait for RabbitMQ to start
-Process.Start("./wait-for-it.sh", $"{MQ_ADDRESS}:{MQ_PORT}").WaitForExit();
+Process.Start("./wait-for-it.sh", $"{MQ_ADDRESS}:{MQ_PORT} -t 120").WaitForExit();
 
 // Initialise the RabbitMQ connection and channels
 var factory = new ConnectionFactory() { HostName = MQ_ADDRESS, Port = int.Parse(MQ_PORT) };

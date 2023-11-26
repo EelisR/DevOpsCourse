@@ -68,7 +68,7 @@ async function startMQListen() {
 
 function waitForMq() {
   console.log("Waiting for MQ to be ready...");
-  execSync(`./wait-for-it/wait-for-it.sh ${MQ_ADDRESS}:${MQ_PORT}`);
+  execSync(`./wait-for-it/wait-for-it.sh ${MQ_ADDRESS}:${MQ_PORT} -t 120`);
   console.log("MQ is ready!");
   console.log("Waiting for couple of seconds for queue inits");
   sleepSync(3000);

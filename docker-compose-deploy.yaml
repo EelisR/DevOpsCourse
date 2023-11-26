@@ -1,0 +1,87 @@
+services:
+  eelisr-mq:
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  eelisr-service1:
+    build: service1
+    image: devopseelisr.azurecr.io/eelisr-service1:latest
+    ports:
+      - 4001:4001
+    environment:
+      SERVICE_2_ADDRESS: localhost
+      SERVICE_2_PORT: 8000
+      OWN_PORT: 4001
+      MQ_ADDRESS: localhost
+      MQ_PORT: 5672
+      ASPNETCORE_URLS: http://*:4001
+    depends_on:
+      - eelisr-mq
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 0.5G
+
+  eelisr-service2:
+    build:
+      context: ./service2
+    image: devopseelisr.azurecr.io/eelisr-service2:latest
+    ports:
+      - 8000:8000
+    environment:
+      PORT: 8000
+      MQ_ADDRESS: localhost
+      MQ_PORT: 5672
+    depends_on:
+      - eelisr-mq
+      - eelisr-service1
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 0.5G
+
+  eelisr-monitor:
+    build:
+      context: ./monitor
+    image: devopseelisr.azurecr.io/eelisr-monitor:latest
+    ports:
+      - 8087:8087
+    environment:
+      MQ_ADDRESS: localhost
+      MQ_PORT: 5672
+    depends_on:
+      - eelisr-mq
+      - eelisr-service1
+      - eelisr-service2
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 0.5G
+
+  eelisr-api:
+    build:
+      context: ./api
+    image: devopseelisr.azurecr.io/eelisr-api:latest
+    environment:
+      SERVICE_1_ADDRESS: localhost:4001
+      SERVICE_2_ADDRESS: localhost:8000
+      MONITOR_ADDRESS: localhost:8087
+      MQ_ADDRESS: localhost:5672
+      MQ_MONITOR_ADDRESS: localhost:15672
+      PORT: 8083
+    ports:
+      - 8083:8083
+    depends_on:
+      - eelisr-service1
+      - eelisr-service2
+      - eelisr-monitor
+    deploy:
+      resources:
+        limits:
+          cpus: ''
+          memory: 0.5G

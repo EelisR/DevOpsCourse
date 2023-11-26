@@ -210,7 +210,7 @@ async function fetchFromMqMonitor(path: string) {
 
 async function waitForService(service: string) {
   console.log(`Waiting for service ${service} to be ready...`);
-  execSync(`./wait-for-it/wait-for-it.sh ${service} -t 60`);
+  execSync(`./wait-for-it/wait-for-it.sh ${service} -t 120`);
   console.log(`Service ${service} is ready!`);
   sleepSync(1000);
 }
